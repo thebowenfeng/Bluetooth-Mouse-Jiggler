@@ -24,13 +24,15 @@ This will giveaway the fact that the device is likely not a genuine device.
 
 To change the default vendor ID and product ID, manually compile and install BlueZ from source.
 
-1. Clone bluez's [git repository](https://github.com/bluez/bluez/tree/master)
-2. Modify `src/main.c` L1196 and L1197 to desired vendor & product ID.
-3. Follow instructions on BlueZ's readme to compile and install. **Do not** uninstall apt's bluez. The manual installation process will overwrite the necessary binaries.
-4. Execute the following 3 commands:
+1. Uninstall bluez (`sudo apt-get remove bluez`) and then install bluez (`sudo apt-get install bluez`).
+2. Clone bluez's [git repository](https://github.com/bluez/bluez/tree/master)
+3. Modify `src/main.c` L1196 and L1197 to desired vendor & product ID.
+4. Follow instructions on BlueZ's readme to compile and install. At this point do not uninstall bluez.
+5. Execute the following 3 commands:
    1. `sudo sed -i '/^ExecStart=/ s/$/ --noplugin=input/' /lib/systemd/system/bluetooth.service`
    2. `sudo systemctl daemon-reload`
    3. `sudo systemctl restart bluetooth.service`
+6. Restart machine
 
 ## Running
 
