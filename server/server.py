@@ -10,7 +10,7 @@ from gi.repository import GLib
 
 logging.basicConfig(level=logging.DEBUG)
 
-DEVICE_NAME = "BluetoothKeyboardMouse"
+DEVICE_NAME = "MX1000 Bluetooth Laser Mouse"
 P_CTRL = 17  # Service port - must match port configured in SDP record
 P_INTR = 19  # Interrupt port - must match port configured in SDP record
 SDP_RECORD_PATH = sys.path[0] + "/sdp_record.xml"
@@ -24,7 +24,7 @@ cinterrupt = None
 def init_bt_device():
     print("Configuring Device name " + DEVICE_NAME)
     os.system("hciconfig hci0 up")
-    os.system("hciconfig hci0 name " + DEVICE_NAME)
+    os.system("hciconfig hci0 name " + "\"" + DEVICE_NAME + "\"")
     os.system("hciconfig hci0 piscan")
 
 def init_bluez_profile():

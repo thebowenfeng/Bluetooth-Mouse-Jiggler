@@ -51,13 +51,13 @@
 		</sequence>
 	</attribute>
 	<attribute id="0x0100">
-		<text value="Bluetooth Mouse" />
+		<text value="MX1000 Bluetooth Laser Mouse" />
 	</attribute>
 	<attribute id="0x0101">
 		<text value="USB > BT Mouse" />
 	</attribute>
 	<attribute id="0x0102">
-		<text value="Logitech" />
+		<text value="Logitech, Inc." />
 	</attribute>
 	<attribute id="0x0200">
 		<uint16 value="0x0100" />
