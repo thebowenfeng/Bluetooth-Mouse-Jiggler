@@ -1,5 +1,6 @@
 import logging
 import socket
+from threading import Thread
 
 import dbus
 import dbus.mainloop.glib
@@ -16,10 +17,7 @@ P_INTR = 19  # Interrupt port - must match port configured in SDP record
 SDP_RECORD_PATH = sys.path[0] + "/sdp_record.xml"
 UUID = "00001124-0000-1000-8000-00805f9b34fb" # HID UUID
 
-scontrol = None
-sinterrupt = None
-ccontrol = None
-cinterrupt = None
+cinterrupts = []
 
 def init_bt_device():
     print("Configuring Device name " + DEVICE_NAME)
@@ -43,10 +41,7 @@ def init_bluez_profile():
         os.system("hciconfig hci0 class 0x002580") # Hex code is also CoD, consistent with 0x0202 in sdp_record
 
 def listen():
-    global scontrol
-    global sinterrupt
-    global ccontrol
-    global cinterrupt
+    global cinterrupts
 
     print("\033[0;33mWaiting for connections\033[0m")
     scontrol = socket.socket(
@@ -63,17 +58,29 @@ def listen():
     scontrol.listen(5)
     sinterrupt.listen(5)
 
-    ccontrol, cinfo = scontrol.accept()
-    print (
-        "\033[0;32mGot a connection on the control channel from %s \033[0m" % cinfo[0])
+    while True:
+        ccontrol, cinfo = scontrol.accept()
+        print (
+            "\033[0;32mGot a connection on the control channel from %s \033[0m" % cinfo[0])
 
-    cinterrupt, cinfo = sinterrupt.accept()
-    print (
-        "\033[0;32mGot a connection on the interrupt channel from %s \033[0m" % cinfo[0])
+        cinterrupt, cinfo = sinterrupt.accept()
+        print (
+            "\033[0;32mGot a connection on the interrupt channel from %s \033[0m" % cinfo[0])
+        cinterrupts.append(cinterrupt)
 
 def send_string(message):
+    global cinterrupts
+    failed_sockets = []
     try:
-        cinterrupt.send(bytes(message))
+        for cinterrupt in cinterrupts:
+            try:
+                cinterrupt.send(bytes(message))
+            except socket.error as err:
+                print(err)
+                failed_sockets.append(cinterrupt)
+        for sock in failed_sockets:
+            cinterrupts.remove(sock)
+        failed_sockets = []
     except OSError as err:
         print(err)
 
@@ -88,7 +95,8 @@ class BluetoothService(dbus.service.Object):
             self, bus_name, "/org/bowenfeng/bluetoothservice")
         init_bt_device()
         init_bluez_profile()
-        listen()
+        t = Thread(target = listen)
+        t.start()
 
     # Look in keyboard
 
